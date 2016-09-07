@@ -1,4 +1,4 @@
-package com.saranya.practice.corejava.thread;
+package com.saranyapk.practice.corejava.thread;
 
 public class ThreadPractice
 {

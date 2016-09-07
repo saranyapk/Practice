@@ -1,4 +1,4 @@
-package com.saranyapk.practice.corejava.thread;
+package com.saranya.practice.corejava.thread;
 
 public class ThreadPractice
 {
@@ -36,7 +36,10 @@ class EvenThread implements Runnable
 
 				try
 				{
-					lock.wait();
+					if ( i < 10 )
+					{
+						lock.wait();
+					}
 				}
 				catch ( InterruptedException e )
 				{
@@ -78,7 +81,10 @@ class OddThread implements Runnable
 
 				try
 				{
-					lock.wait();
+					if ( i < 9 )
+					{
+						lock.wait();
+					}
 				}
 				catch ( InterruptedException e )
 				{

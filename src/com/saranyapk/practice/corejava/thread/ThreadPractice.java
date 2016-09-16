@@ -2,96 +2,101 @@ package com.saranyapk.practice.corejava.thread;
 
 public class ThreadPractice
 {
+	private static volatile Boolean isEvenPrinted = false;
+
 	public static void main( String args[] )
 	{
 		Object lock = new Object();
 
-		Thread even = new Thread( new EvenThread( lock ) );
-		Thread odd = new Thread( new OddThread( lock ) );
+		Thread even = new Thread( new ThreadPractice().new EvenThread( lock ) );
+		Thread odd = new Thread( new ThreadPractice().new OddThread( lock ) );
 
 		even.start();
 		odd.start();
 	}
-}
 
-class EvenThread implements Runnable
-{
-	Object lock;
-
-	public EvenThread( Object lock )
+	class EvenThread implements Runnable
 	{
-		this.lock = lock;
-	}
+		Object lock;
 
-	@Override
-	public void run()
-	{
-		for ( int i = 0; i < 10; i = i + 2 )
+		public EvenThread( Object lock )
 		{
-			synchronized (lock)
+			this.lock = lock;
+		}
+
+		@Override
+		public void run()
+		{
+			for ( int i = 0; i < 10; i = i + 2 )
 			{
-				lock.notify();
-
-				System.out.println( i );
-
-				try
+				synchronized (lock)
 				{
-					if ( i < 10 )
+					lock.notify();
+
+					if ( !isEvenPrinted )
 					{
-						lock.wait();
+						System.out.println( i );
+
+						isEvenPrinted = true;
 					}
-				}
-				catch ( InterruptedException e )
-				{
-					e.printStackTrace();
+
+					try
+					{
+						if ( i < 10 )
+						{
+							lock.wait();
+						}
+					}
+					catch ( InterruptedException e )
+					{
+						e.printStackTrace();
+					}
 				}
 			}
 		}
+
 	}
 
-}
-
-class OddThread implements Runnable
-{
-	Object lock;
-
-	public OddThread( Object lock )
+	class OddThread implements Runnable
 	{
-		this.lock = lock;
-	}
+		Object lock;
 
-	@Override
-	public void run()
-	{
-		try
+		public OddThread( Object lock )
 		{
-			Thread.sleep( 500 );
+			this.lock = lock;
+
 		}
-		catch ( InterruptedException e1 )
+
+		@Override
+		public void run()
 		{
-			e1.printStackTrace();
-		}
-		for ( int i = 1; i < 10; i = i + 2 )
-		{
-			synchronized (lock)
+			for ( int i = 1; i < 10; i = i + 2 )
 			{
-				lock.notify();
-
-				System.out.println( i );
-
-				try
+				synchronized (lock)
 				{
-					if ( i < 9 )
+					lock.notify();
+
+					if ( isEvenPrinted )
 					{
-						lock.wait();
+						System.out.println( i );
+
+						isEvenPrinted = false;
 					}
-				}
-				catch ( InterruptedException e )
-				{
-					e.printStackTrace();
+
+					try
+					{
+						if ( i < 9 )
+						{
+							lock.wait();
+						}
+					}
+					catch ( InterruptedException e )
+					{
+						e.printStackTrace();
+					}
 				}
 			}
 		}
-	}
 
+	}
 }

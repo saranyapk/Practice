@@ -2,7 +2,7 @@ package com.saranyapk.practice.corejava.thread;
 
 public class ThreadPractice
 {
-	private static volatile Boolean isEvenPrinted = false;
+	private static volatile Boolean isEvenStarted = false;
 
 	public static void main( String args[] )
 	{
@@ -13,6 +13,7 @@ public class ThreadPractice
 
 		even.start();
 		odd.start();
+
 	}
 
 	class EvenThread implements Runnable
@@ -27,21 +28,23 @@ public class ThreadPractice
 		@Override
 		public void run()
 		{
+			synchronized (lock)
+			{
+				isEvenStarted = true;
+				
+				lock.notify();
+			}
+
 			for ( int i = 0; i < 10; i = i + 2 )
 			{
 				synchronized (lock)
 				{
-					lock.notify();
-
-					if ( !isEvenPrinted )
-					{
-						System.out.println( i );
-
-						isEvenPrinted = true;
-					}
-
 					try
 					{
+						lock.notify();
+
+						System.out.println( i );
+
 						if ( i < 10 )
 						{
 							lock.wait();
@@ -70,21 +73,31 @@ public class ThreadPractice
 		@Override
 		public void run()
 		{
+			synchronized (lock)
+			{
+				while ( !isEvenStarted )
+				{
+					try
+					{
+						lock.wait();
+					}
+					catch ( InterruptedException e )
+					{
+						e.printStackTrace();
+					}
+				}
+			}
 			for ( int i = 1; i < 10; i = i + 2 )
 			{
 				synchronized (lock)
 				{
-					lock.notify();
-
-					if ( isEvenPrinted )
-					{
-						System.out.println( i );
-
-						isEvenPrinted = false;
-					}
-
 					try
 					{
+
+						lock.notify();
+
+						System.out.println( i );
+
 						if ( i < 9 )
 						{
 							lock.wait();
